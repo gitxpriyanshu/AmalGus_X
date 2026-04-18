@@ -105,10 +105,10 @@ export const aiExampleQueries = [
 
 // Stats for homepage
 export const platformStats = [
-  { value: '₹150B+', label: 'Market Size' },
-  { value: '52+', label: 'Customer Types' },
-  { value: '15+', label: 'Glass Types' },
-  { value: '25 Yrs', label: 'Industry Expertise' },
+  { value: '₹150B+', label: 'India Market Size' },
+  { value: '8+', label: 'Glass Configurations' },
+  { value: '15+', label: 'Allied Categories' },
+  { value: '500+', label: 'Verified Partners' },
 ]
 
 // Price calculation utility

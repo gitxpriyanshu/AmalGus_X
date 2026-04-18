@@ -13,6 +13,41 @@ const serviceColors: Record<string, string> = {
   AMC: 'bg-green-500/10 text-green-300 border-green-500/20',
 }
 
+function PartnerCard({ p }: { p: ServicePartner }) {
+  const [requested, setRequested] = useState(false)
+  return (
+    <div className="glass-card p-6 border-white/5 group hover:border-[#1E88E5]/30 transition-all">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold tracking-tight text-white group-hover:text-[#1E88E5] transition-colors">{p.name}</h3>
+            {p.verified && <CheckCircle size={16} className="text-[#1E88E5]" />}
+          </div>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded border ${serviceColors[p.service_type] || 'bg-white/5 text-white/40 border-white/10'}`}>
+              {p.service_type}
+            </span>
+            <span className="text-white/20 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5"><MapPin size={12} />{p.city}</span>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="flex items-center gap-1.5 text-[#1E88E5] font-bold"><Star size={14} fill="currentColor" /><span className="text-sm">{p.rating}</span></div>
+          <div className="text-white/20 text-[10px] font-bold uppercase tracking-widest mt-1">{p.reviews_count} reviews</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 text-white/40 text-xs mb-6">
+        <Wrench size={14} />
+        <span>Starts at {p.price_range}</span>
+      </div>
+      <button 
+        onClick={() => setRequested(true)}
+        className={`${requested ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'btn-secondary'} w-full py-3 text-[10px] uppercase font-bold tracking-widest`}>
+        {requested ? '✓ Callback Scheduled' : 'Contact Partner'}
+      </button>
+    </div>
+  )
+}
+
 export default function ServicePartnersPage() {
   const [partners, setPartners] = useState<ServicePartner[]>([])
   const [filtered, setFiltered] = useState<ServicePartner[]>([])
@@ -34,61 +69,35 @@ export default function ServicePartnersPage() {
   }, [serviceType, city, partners])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Service Partners</h1>
-        <p className="text-white/50">Verified glass installation, measurement, and maintenance professionals near you.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 reveal active-immediate">
+      <div className="mb-12">
+        <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#1E88E5] mb-4">Service Ecosystem</h2>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Professional Partners</h1>
+        <p className="text-white/30 max-w-2xl leading-relaxed">Verified glass installation, measurement, and maintenance professionals. Measurement precision is critical — a 1mm error results in complete panel rejection.</p>
       </div>
-      <div className="glass-card p-4 mb-8 text-sm text-white/60 border-green-500/20 bg-green-500/5">
-        ✅ All partners are verified by AmalGus. Ratings based on genuine customer reviews. Measurement precision is critical — 1mm wrong = entire panel rejected.
-      </div>
-      <div className="flex flex-wrap gap-3 mb-8">
-        <div className="flex gap-2 flex-wrap">
+      
+      <div className="flex flex-wrap items-center justify-between gap-6 mb-12">
+        <div className="flex gap-3 flex-wrap">
           {serviceTypes.map(s => (
             <button key={s} onClick={() => setServiceType(s)}
-              className={`px-3 py-1.5 rounded-full text-xs transition-colors ${serviceType === s ? 'bg-[#1E88E5] text-white' : 'border border-white/10 text-white/50 hover:text-white'}`}>
+              className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${serviceType === s ? 'bg-[#1E88E5] text-white shadow-lg shadow-[#1E88E5]/20' : 'bg-white/5 border border-white/10 text-white/40 hover:bg-white/10'}`}>
               {s}
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {cities.map(c => (
             <button key={c} onClick={() => setCity(c)}
-              className={`px-3 py-1.5 rounded-full text-xs flex items-center gap-1 transition-colors ${city === c ? 'bg-white/10 text-white' : 'border border-white/10 text-white/40 hover:text-white'}`}>
-              <MapPin size={10} />{c}
+              className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all ${city === c ? 'bg-white/10 text-white border-white/20' : 'bg-transparent border border-white/10 text-white/40 hover:text-white'}`}>
+              <MapPin size={12} />{c}
             </button>
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(p => (
-          <div key={p.id} className="glass-card p-5 hover:border-white/20 transition-all">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">{p.name}</h3>
-                  {p.verified && <CheckCircle size={14} className="text-green-400" />}
-                </div>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full border ${serviceColors[p.service_type] || 'bg-white/5 text-white/40 border-white/10'}`}>
-                    {p.service_type}
-                  </span>
-                  <span className="text-white/30 text-xs flex items-center gap-0.5"><MapPin size={10} />{p.city}</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-amber-400"><Star size={12} fill="currentColor" /><span className="text-sm font-medium">{p.rating}</span></div>
-                <div className="text-white/30 text-xs">{p.reviews_count} reviews</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 text-white/50 text-sm mb-4">
-              <Wrench size={12} />
-              <span>{p.price_range}</span>
-            </div>
-            <button className="w-full py-2 rounded-lg bg-[#1E88E5]/10 border border-[#1E88E5]/20 text-[#90CAF9] text-sm hover:bg-[#1E88E5]/20 transition-colors">
-              Contact Partner
-            </button>
-          </div>
+          <PartnerCard key={p.id} p={p} />
         ))}
       </div>
     </div>

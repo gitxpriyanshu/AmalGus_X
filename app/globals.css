@@ -7,22 +7,158 @@
   --foreground: #FFFFFF;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    @apply bg-[#0A1628] text-white selection:bg-[#1E88E5]/30 selection:text-white;
+    -webkit-font-smoothing: antialiased;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
+@layer components {
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl transition-all duration-300;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .glass-card:hover {
+    @apply border-white/[0.15] bg-white/[0.05];
+    transform: translateY(-6px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(30, 136, 229, 0.1);
+  }
+
+  /* Shimmer Loading */
+  .shimmer {
+    @apply relative overflow-hidden bg-white/[0.02];
+  }
+
+  .shimmer::after {
+    @apply absolute inset-0;
+    content: "";
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Reveal Base Class */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.active,
+  .reveal.active-immediate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered Children for Grid Entries */
+  .reveal.active-immediate > * {
+    animation: reveal-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes reveal-in {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* God Level Buttons - Massive Hardware Depth */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center overflow-hidden px-12 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-500 cursor-pointer select-none;
+    background: linear-gradient(180deg, #2196F3 0%, #1565C0 100%);
+    box-shadow: 
+      0 1px 1px rgba(255, 255, 255, 0.4) inset, 
+      0 8px 15px -5px rgba(30, 136, 229, 0.6),
+      0 20px 40px -10px rgba(30, 136, 229, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-primary:hover {
+    @apply scale-[1.05] -translate-y-1.5;
+    background: linear-gradient(180deg, #42A5F5 0%, #1E88E5 100%);
+    box-shadow: 
+      0 1px 2px rgba(255, 255, 255, 0.5) inset, 
+      0 25px 50px -12px rgba(30, 136, 229, 0.7);
+  }
+
+  .btn-primary:active {
+    @apply scale-[0.94] translate-y-0.5 transition-all duration-100;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) inset;
+  }
+
+  /* Secondary Skeuomorphism */
+  .btn-secondary {
+    @apply relative inline-flex items-center justify-center px-12 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-500 cursor-pointer select-none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(25px);
+    color: rgba(255, 255, 255, 0.7);
+    box-shadow: 
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 10px 20px -5px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-secondary:hover {
+    @apply bg-white/10 border-white/30 scale-[1.05] -translate-y-1.5 text-white;
+    box-shadow: 0 25px 45px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  .btn-secondary:active {
+    @apply scale-[0.94] translate-y-0.5;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Industrial Form Polish */
+@layer base {
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+    cursor: pointer;
+  }
+  
+  input[type=range]::-webkit-slider-runnable-track {
+    @apply h-1 bg-white/5 rounded-full;
+  }
+  
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    @apply h-4 w-4 rounded-full bg-[#1E88E5] border-2 border-white/20;
+    margin-top: -6px;
+    box-shadow: 0 0 15px rgba(30, 136, 229, 0.6);
+    transition: all 0.2s ease;
+  }
+
+  input[type=range]:active::-webkit-slider-thumb {
+    @apply scale-110 bg-[#90CAF9];
   }
 }
 

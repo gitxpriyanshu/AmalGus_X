@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Zap, Send, ArrowRight, AlertCircle } from 'lucide-react'
 import { aiExampleQueries } from '@/lib/data'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 function AIMatchContent() {
   const searchParams = useSearchParams()
@@ -12,6 +13,8 @@ function AIMatchContent() {
   const [result, setResult] = useState<null | { summary: string, recommendations: any[], followUpQuestion?: string }>(null)
   const [error, setError] = useState('')
   const userRole = typeof window !== 'undefined' ? localStorage.getItem('amalgus_role') || 'homeowner' : 'homeowner'
+
+  useScrollReveal()
 
   useEffect(() => {
     const q = searchParams.get('q')
@@ -23,6 +26,7 @@ function AIMatchContent() {
     const finalQuery = q || query
     if (!finalQuery.trim()) return
     setLoading(true); setError(''); setResult(null)
+    const start = Date.now()
     try {
       const res = await fetch('/api/ai-match', {
         method: 'POST',
@@ -31,14 +35,21 @@ function AIMatchContent() {
       })
       const data = await res.json()
       if (data.error) throw new Error(data.error)
+      
+      const elapsed = Date.now() - start
+      const wait = 1200 - elapsed
+      if (wait > 0) await new Promise(r => setTimeout(r, wait))
+      
       setResult(data)
     } catch (e: any) { setError(e.message) }
     finally { setLoading(false) }
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-10">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[#1E88E5]/5 blur-[120px] -z-10" />
+      
+      <div className="text-center mb-10 reveal">
         <div className="w-14 h-14 rounded-2xl bg-[#1E88E5]/20 flex items-center justify-center mx-auto mb-4">
           <Zap size={28} className="text-[#1E88E5]" />
         </div>
@@ -47,18 +58,18 @@ function AIMatchContent() {
       </div>
 
       {/* Input */}
-      <div className="glass-card p-6 mb-6">
+      <div className="glass-card p-6 mb-6 reveal">
         <textarea value={query} onChange={e => setQuery(e.target.value)}
           placeholder="e.g. I need glass for my bathroom shower enclosure..."
           className="w-full bg-transparent text-white placeholder-white/30 text-sm resize-none outline-none min-h-[80px]"
           onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit() }} />
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
           <span className="text-white/30 text-xs">Press ⌘+Enter or click Send</span>
-          <button onClick={() => handleSubmit()}
-            disabled={loading || !query.trim()}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#1E88E5] text-white text-sm font-medium hover:bg-[#1976D2] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            {loading ? 'Analysing...' : <><Send size={14} /> Get Recommendation</>}
-          </button>
+            <button onClick={() => handleSubmit()}
+              disabled={loading || !query.trim()}
+              className="btn-primary">
+              {loading ? 'Analysing...' : <><Send size={14} className="mr-2" /> Get Recommendation</>}
+            </button>
         </div>
       </div>
 
@@ -74,11 +85,18 @@ function AIMatchContent() {
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Shimmer Loading state */}
       {loading && (
-        <div className="glass-card p-8 text-center">
-          <div className="w-8 h-8 border-2 border-[#1E88E5] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white/60 text-sm">Analysing your requirement with glass industry knowledge...</p>
+        <div className="space-y-6">
+          <div className="glass-card p-6 border-white/5 shimmer">
+            <div className="h-4 w-1/4 bg-white/10 rounded mb-4" />
+            <div className="h-3 w-full bg-white/10 rounded mb-2" />
+            <div className="h-3 w-2/3 bg-white/10 rounded" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="glass-card p-24 shimmer" />
+             <div className="glass-card p-24 shimmer" />
+          </div>
         </div>
       )}
 
@@ -92,52 +110,98 @@ function AIMatchContent() {
 
       {/* Results */}
       {result && (
-        <div className="space-y-4">
-          <div className="glass-card p-5 border-[#1E88E5]/20">
+        <div className="space-y-6">
+          <div className="glass-card p-6 border-[#1E88E5]/30 bg-[#1E88E5]/5">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-[#90CAF9] mb-2">Expert Appraisal</h3>
             <p className="text-white/80 text-sm leading-relaxed">{result.summary}</p>
           </div>
+
           {result.recommendations?.map((rec: any, i: number) => (
-            <div key={i} className="glass-card p-6 hover:border-[#1E88E5]/40 transition-all">
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#1E88E5]/20 text-[#90CAF9]">
-                      {i === 0 ? 'Best Match' : `Option ${i + 1}`}
-                    </span>
-                    <span className="text-xs text-white/40">{rec.thickness} · {rec.process}</span>
-                  </div>
-                  <h3 className="font-bold text-lg">{rec.glassType} Glass</h3>
-                </div>
-                <span className="text-[#1E88E5] font-semibold text-sm shrink-0">{rec.priceRange}</span>
+            <div key={i} className={`glass-card overflow-hidden border-white/10 ${i === 0 ? 'ring-1 ring-[#1E88E5]/40' : ''}`}>
+              <div className="bg-white/5 px-6 py-3 border-b border-white/5 flex items-center justify-between">
+                 <span className="text-[10px] font-bold uppercase tracking-tighter text-white/40">
+                    {i === 0 ? 'Primary Recommendation' : 'Secondary Alternative'}
+                 </span>
+                 <span className="text-[#1E88E5] font-bold text-sm">{rec.priceRange}</span>
               </div>
-              <p className="text-white/60 text-sm mb-3 leading-relaxed">{rec.reason}</p>
-              {rec.safetyNote && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-3">
-                  <AlertCircle size={14} className="text-amber-400 mt-0.5 shrink-0" />
-                  <p className="text-amber-300 text-xs">{rec.safetyNote}</p>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Specs */}
+                  <div>
+                    <h4 className="text-xs font-bold mb-4 text-white/30 uppercase tracking-widest">Recommended Glass</h4>
+                    <div className="space-y-3">
+                       <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-xs text-white/50">Type</span>
+                          <span className="text-xs font-bold">{rec.glassType}</span>
+                       </div>
+                       <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-xs text-white/50">Thickness</span>
+                          <span className="text-xs font-bold">{rec.thickness}</span>
+                       </div>
+                       <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-xs text-white/50">Process</span>
+                          <span className="text-xs font-bold">{rec.process}</span>
+                       </div>
+                       <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-xs text-white/50">Application</span>
+                          <span className="text-xs font-bold">{rec.application}</span>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Why */}
+                  <div>
+                    <h4 className="text-xs font-bold mb-4 text-white/30 uppercase tracking-widest">Why This Glass</h4>
+                    <div className="space-y-4">
+                       <div>
+                          <p className="text-[10px] font-bold text-[#90CAF9] uppercase mb-1">Safety</p>
+                          <p className="text-xs text-white/70 leading-relaxed">{rec.safetyReason}</p>
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-bold text-[#90CAF9] uppercase mb-1">Performance</p>
+                          <p className="text-xs text-white/70 leading-relaxed">{rec.performanceReason}</p>
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-bold text-[#90CAF9] uppercase mb-1">Use Case</p>
+                          <p className="text-xs text-white/70 leading-relaxed">{rec.useCaseReason}</p>
+                       </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-              {rec.alternative && (
-                <p className="text-white/40 text-xs mb-4">Alternative: {rec.alternative}</p>
-              )}
-              <div className="flex gap-3">
-                {rec.productId && (
-                  <Link href={`/products/${rec.productId}`}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#1E88E5] text-white text-sm font-medium hover:bg-[#1976D2] transition-colors">
-                    View Product <ArrowRight size={14} />
-                  </Link>
+
+                {rec.alternativeType && (
+                  <div className="mt-8 pt-6 border-t border-white/5">
+                     <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <p className="text-[10px] font-bold text-amber-500 uppercase mb-1">Alternative Option: {rec.alternativeType}</p>
+                        <p className="text-xs text-white/60">{rec.alternativeReason}</p>
+                     </div>
+                  </div>
                 )}
-                <Link href={`/quote?type=${encodeURIComponent(rec.glassType)}&thickness=${encodeURIComponent(rec.thickness)}`}
-                  className="px-4 py-2 rounded-lg border border-white/10 text-white/60 text-sm hover:text-white hover:border-white/30 transition-colors">
-                  Get Quote
-                </Link>
+
+                <div className="mt-8 flex gap-3">
+                   {rec.productId && (
+                     <Link href={`/products/${rec.productId}`}
+                       className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#1E88E5] text-white text-xs font-bold hover:bg-[#1976D2] transition-colors">
+                       View Inventory <ArrowRight size={14} />
+                     </Link>
+                   )}
+                   <Link href={`/quote?type=${encodeURIComponent(rec.glassType)}&thickness=${encodeURIComponent(rec.thickness)}`}
+                     className="btn-secondary">
+                     Get Pricing Estimate
+                   </Link>
+                </div>
               </div>
             </div>
           ))}
+
           {result.followUpQuestion && (
-            <div className="glass-card p-4 border-[#1E88E5]/20">
-              <p className="text-white/50 text-xs mb-1">Refine your recommendation:</p>
-              <p className="text-white/80 text-sm">{result.followUpQuestion}</p>
+            <div className="glass-card p-6 border-amber-500/30 bg-amber-500/5">
+              <div className="flex items-center gap-3 mb-2">
+                 <AlertCircle size={16} className="text-amber-500" />
+                 <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Clarification Needed</span>
+              </div>
+              <p className="text-white/80 text-sm italic">"{result.followUpQuestion}"</p>
             </div>
           )}
           <button onClick={() => { setResult(null); setQuery('') }}
