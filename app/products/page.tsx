@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { Search, Filter, SlidersHorizontal, Zap, ArrowRight } from 'lucide-react'
 import { glassTypes, applications } from '@/lib/data'
 import type { GlassProduct } from '@/lib/supabase'
-
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export default function ProductsPage() {
@@ -50,7 +49,6 @@ export default function ProductsPage() {
         </p>
       </div>
 
-      {/* Search + Filter Toggle */}
       <div className="flex gap-4 mb-10 reveal">
         <div className="flex-1 relative glass-card !rounded-2xl border-white/5 group">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#1E88E5] transition-colors" />
@@ -69,7 +67,6 @@ export default function ProductsPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-10">
-        {/* Sidebar Filters */}
         {showFilters && (
           <aside className="w-full lg:w-64 shrink-0 space-y-10 reveal">
             <div>
@@ -105,7 +102,6 @@ export default function ProductsPage() {
           </aside>
         )}
 
-        {/* Product Grid */}
         <div className="flex-1">
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

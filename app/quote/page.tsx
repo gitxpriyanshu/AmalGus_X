@@ -36,13 +36,11 @@ function QuoteContent() {
         setLoading(false)
       })
     } else {
-      // Fetch base market rate for this specific glass type
       setLoading(true)
       fetch(`/api/products?type=${encodeURIComponent(glassType)}&limit=1`).then(res => res.json()).then(data => {
         if (data && data.length > 0 && data[0].price_min > 0) {
           setPricePerSqft(data[0].price_min)
         } else {
-          // Robust industrial fallback for premium types (Synchronized with AI Expert Tiers)
           const typeKey = glassType.toLowerCase().trim()
           const industrialDefaults: Record<string, number> = {
             'double glazing unit (dgu)': 1850,
@@ -53,12 +51,9 @@ function QuoteContent() {
             'frosted': 97,
             'back-painted': 185
           }
-          
-          // Match by exact key or partial name
           const matchedRate = industrialDefaults[typeKey] || 
                              Object.entries(industrialDefaults).find(([k]) => typeKey.includes(k))?.[1] || 
                              140
-                             
           setPricePerSqft(matchedRate)
         }
         setLoading(false)
@@ -89,7 +84,6 @@ function QuoteContent() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-       {/* Background Glow */}
       <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] -z-10" />
 
       <div className="mb-12 reveal">
@@ -101,7 +95,6 @@ function QuoteContent() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Form */}
         <div className="glass-card p-10 space-y-8 reveal border-white/5 shadow-2xl">
           <div className="space-y-6">
             <div>
@@ -115,7 +108,7 @@ function QuoteContent() {
               </div>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 px-1">Default Thickness (System Auto)</label>
+              <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 px-1">Default Thickness</label>
               <input value={thickness} readOnly 
                 className="w-full px-5 py-4 rounded-2xl bg-white/[0.02] border border-white/5 text-white/60 text-sm cursor-not-allowed outline-none" />
             </div>
@@ -125,12 +118,12 @@ function QuoteContent() {
             <div>
               <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 px-1">Width (mm)</label>
               <input type="number" value={width} onChange={e => setWidth(e.target.value)} placeholder="0"
-                className="w-full px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-sm focus:outline-none focus:border-[#1E88E5] transition-all font-mono placeholder:text-white/10" />
+                className="w-full px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-sm focus:outline-none focus:border-[#1E88E5] transition-all font-mono" />
             </div>
             <div>
               <label className="block text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 px-1">Height (mm)</label>
               <input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="0"
-                className="w-full px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-sm focus:outline-none focus:border-[#1E88E5] transition-all font-mono placeholder:text-white/10" />
+                className="w-full px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-sm focus:outline-none focus:border-[#1E88E5] transition-all font-mono" />
             </div>
           </div>
 
@@ -152,11 +145,6 @@ function QuoteContent() {
                   onChange={e => setQuantity(e.target.value)} 
                   className="w-full cursor-grab active:cursor-grabbing"
                 />
-                <div className="flex justify-between mt-2">
-                  <span className="text-[8px] font-bold text-white/10 uppercase tracking-tighter">1</span>
-                  <span className="text-[8px] font-bold text-white/10 uppercase tracking-tighter">Movable Line Control</span>
-                  <span className="text-[8px] font-bold text-white/10 uppercase tracking-tighter">100</span>
-                </div>
               </div>
             </div>
           </div>
@@ -167,7 +155,6 @@ function QuoteContent() {
           </button>
         </div>
 
-        {/* Live Preview */}
         <div className="glass-card p-10 border-[#1E88E5]/20 bg-[#1E88E5]/[0.02] reveal">
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
             <h3 className="font-bold text-lg tracking-tight">Appraisal Preview</h3>
