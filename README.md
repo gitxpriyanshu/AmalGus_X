@@ -18,7 +18,7 @@ The global glass construction market is worth $150–190 Billion, yet the indust
 |---|---|---|
 | Frontend | Next.js 14 (App Router) | SSR, fast routing, Vercel-native |
 | Styling | Tailwind CSS | Rapid responsive UI |
-| AI | Gemini 1.5 Flash API | Permanent Free Tier, 1M context window |
+| AI | Groq API (Llama 3.3) | Ultra-fast inference, perfect JSON formatting |
 | Database | Supabase (PostgreSQL) | Real-time, REST API built-in, free tier |
 | Deployment | Vercel | One-click, env var management |
 
@@ -28,7 +28,7 @@ The global glass construction market is worth $150–190 Billion, yet the indust
 
 ### Core (Required)
 - **Glass Product Catalog** — 8 glass types with filtering by type, application, process, and price
-- **AI Smart Matching** — Natural language query → Claude API → expert glass recommendation with industry reasoning
+- **AI Smart Matching** — Natural language query → Groq Llama 3.3 → expert glass recommendation with industry reasoning
 - **Quote Generator** — Dimension input → live area calculation → price estimate with GST → saved to Supabase
 
 ### Bonus
@@ -43,7 +43,7 @@ The global glass construction market is worth $150–190 Billion, yet the indust
 
 ## AI Matching — How It Works
 
-The AI matching engine sends the user&apos;s natural language query to **Gemini 1.5 Flash** with a structured system prompt encoding real glass industry rules:
+The AI matching engine sends the user&apos;s natural language query to **Groq (Llama 3.3)** with a structured system prompt encoding real glass industry rules:
 
 - Shower/wet areas → always Toughened (tempered) — mandatory safety
 - Railing above 2 floors → Laminated (PVB holds shards together)
@@ -74,7 +74,7 @@ Create `.env.local`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=your_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-GEMINI_API_KEY=your_gemini_key
+GROQ_API_KEY=your_groq_key
 ```
 
 ### 4. Run Locally
@@ -101,7 +101,7 @@ API Routes (Next.js)
 ├── /api/products  → Supabase: glass_products table
 ├── /api/rates     → Supabase: daily_rates table
 ├── /api/quote     → calculateQuote() + Supabase: quotes table
-└── /api/ai-match  → Anthropic Claude API → enriched with Supabase product IDs
+└── /api/ai-match  → Groq Llama 3.3 API → enriched with Supabase product IDs
 ↓
 Supabase PostgreSQL
 (glass_products, vendors, vendor_products,
