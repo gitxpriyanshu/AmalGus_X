@@ -16,6 +16,7 @@ function AIMatchContent() {
   useEffect(() => {
     const q = searchParams.get('q')
     if (q) { setQuery(q); handleSubmit(q) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSubmit = async (q?: string) => {

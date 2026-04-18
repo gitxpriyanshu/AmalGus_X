@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     const responseText = data.choices[0].message.content
     console.log("AI RESPONSE RAW:", responseText); // Debugging log
     
-    let recommendation = JSON.parse(responseText)
+    const recommendation = JSON.parse(responseText)
 
     // Ensure common keys exist to prevent empty UI
     if (!recommendation.summary && recommendation.advice) recommendation.summary = recommendation.advice;
