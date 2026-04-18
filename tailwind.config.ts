@@ -11,6 +11,8 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        navy: { 900: '#0A1628', 800: '#0D1F3C', 700: '#122550' },
+        glass: { 500: '#1E88E5', 400: '#42A5F5', 300: '#90CAF9' }
       },
     },
   },
